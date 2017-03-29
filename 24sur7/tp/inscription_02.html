@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8"> 
+		<title>24sur7 | Inscription</title>
+	</head>
+	
+	<body>
+		<main id="bcPage">
+			<h1>Inscription d'un utilisateur</h1>
+			<form method="POST" action="inscription_05.php">
+				<table border="1" cellpadding="4" cellspacing="0">
+					<tr>
+						<td>Indiquez votre nom</td>
+						<td><input type="text" name="txtNom" size="40"></td>
+					</tr>			
+					<tr>
+					<td>Indiquez une adresse mail valide</td>
+						<td><input type="text" name="txtMail" size="40"></td>
+					</tr>					
+					<tr>
+						<td>Choisissez un mot de passe</td>
+						<td><input type="password" name="txtPasse" size="20"></td>
+					</tr>
+					<tr>
+						<td>R&eacute;p&eacute;tez votre mot de passe</td>
+						<td><input type="password" name="txtVerif" size="20"></td>
+					</tr>
+					<tr>
+						<td>Pour v&eacute;rification, indiquez la date du jour</td>
+						<td>
+							<select name="selDate_j">
+								<option value="11">11</option>
+								<option value="12">12</option>
+								<option value="13">13</option>
+								<option value="14">14</option>
+								<option value="15">15</option>
+							</select>
+							<select name="selDate_m">
+								<option value="1">janvier</option>
+								<option value="2">f&eacute;vrier</option>
+								<option value="3">mars</option>
+							</select>						
+							<select name="selDate_a">
+								<option value="2017">2017</option>
+								<option value="2016">2016</option>
+							</select>						
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><input type="submit" name="btnValider" value="Je m'inscris"></td>
+					</tr>				
+				</table>
+			</form>
+		</main>
+	</body>
+</html>
+			
