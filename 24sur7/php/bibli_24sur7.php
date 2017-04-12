@@ -13,13 +13,10 @@
 define('APP_TEST', TRUE);
 
 // Gestion des infos base de données
-define('APP_BD_URL', 'localhost');
-define('APP_BD_USER', 'u_24sur7');
-define('APP_BD_PASS', 'p_24sur7');
-define('APP_BD_NOM', '24sur7');
-/*define('APP_BD_USER', 'u_merlet');
-define('APP_BD_PASS', 'p_merlet');
-define('APP_BD_NOM', '24sur7_merlet');*/
+define('APP_BD_URL','localhost');
+define('APP_BD_USER','u_paquette');
+define('APP_BD_PASS','p_paquette');
+define('APP_BD_NOM','24sur7_paquette');
 
 define('APP_NOM_APPLICATION','24sur7');
 
@@ -35,7 +32,8 @@ define('APP_PAGE_PARAMETRES', 'parametres.php');
 define('APP_Z_TEXT', 'text');
 define('APP_Z_PASS', 'password');
 define('APP_Z_SUBMIT', 'submit');
-
+define('APP_Z_RESET', 'reset');
+define('APP_Z_CHECKBOX','checkbox');
 
 
 
@@ -53,7 +51,7 @@ define('APP_Z_SUBMIT', 'submit');
 * @return string	Le code HTML de la ligne du tableau
 */
 function fd_form_ligne($gauche, $droite) {
-	return "<tr><td>{$gauche}</td><td>{$droite}</td></tr>";
+	return "<tr id=\"ligneForm\"><td id='colGauche'>{$gauche}</td><td>{$droite}</td></tr>";
 }
 
 //_______________________________________________________________
@@ -70,7 +68,7 @@ function fd_form_ligne($gauche, $droite) {
 function fd_form_input($type, $name, $value, $size=0) {
    $value = htmlentities($value, ENT_QUOTES, 'UTF-8');
    $size = ($size == 0) ? '' : "size='{$size}'";
-   return "<input type='{$type}' id='{$name}' name='{$name}' {$size} value=\"{$value}\">";
+        return "<input type='{$type}' id='{$name}' name='{$name}' $size value=\"{$value}\">";
 }
 
 //_______________________________________________________________
@@ -156,7 +154,7 @@ function fd_exit_session() {
          	$cookieParams['httponly']
     	);
 	
-	header('location: inscription_08.php');
+	header('location: identification.php');
 	exit();
 }
 //____________________________________________________________________________
@@ -274,7 +272,7 @@ function fd_bd_erreurExit($msg) {
  * @param string	$titre		Titre de la page
  * @param string	$css		url de la feuille de styles liée
  */
-function fd_html_head($titre, $css = '../styles/style.css') {
+function fd_html_head($titre, $css = '../css/style.css') {
 	if ($css == '-') {
 		$css = '';
 	} else {
@@ -300,15 +298,17 @@ function fd_html_head($titre, $css = '../styles/style.css') {
  *
  * @param string	$page		Constante APP_PAGE_xxx
  */
-function fd_html_bandeau($page='0') {
-	echo '<header id="bcEntete">'
-            '<nav id="bcOnglets">',
-				($page == APP_PAGE_AGENDA) ? '<h2>Agenda</h2>' : '<a href="'.APP_PAGE_AGENDA.'">Agenda</a>',
-				($page == APP_PAGE_RECHERCHE) ? '<h2>Recherche</h2>' : '<a href="'.APP_PAGE_RECHERCHE.'">Recherche</a>',
-				($page == APP_PAGE_ABONNEMENTS) ? '<h2>Abonnements</h2>' : '<a href="'.APP_PAGE_ABONNEMENTS.'">Abonnements</a>',
-				($page == APP_PAGE_PARAMETRES) ? '<h2>Paramètres</h2>' : '<a href="'.APP_PAGE_PARAMETRES.'">Paramètres</a>',
-			'</nav>',
-            '<div id="bcLogo"></div>',
+function fd_html_bandeau($page) {
+	echo '<header id="bcEntete">';
+	if($page != '0'){
+            echo '<nav id="bcOnglets">',
+            ($page == 'APP_PAGE_AGENDA') ? '<h2>Agenda</h2>' : '<a href="'.APP_PAGE_AGENDA.'">Agenda</a>',
+            ($page == 'APP_PAGE_RECHERCHE') ? '<h2>Recherche</h2>' : '<a href="'.APP_PAGE_RECHERCHE.'">Recherche</a>',
+            ($page == 'APP_PAGE_ABONNEMENTS') ? '<h2>Abonnements</h2>' : '<a href="'.APP_PAGE_ABONNEMENTS.'">Abonnements</a>',
+            ($page == 'APP_PAGE_PARAMETRES') ? '<h2>Paramètres</h2>' : '<a href="'.APP_PAGE_PARAMETRES.'">Paramètres</a>';
+    }
+echo		'</nav>',
+			'<div id="bcLogo"></div>',
 			'<a href="deconnexion.php" id="btnDeconnexion" title="Se d&eacute;connecter"></a>',
 		 '</header>';
 }
@@ -542,4 +542,23 @@ function fd_redirige($page) {
 	header("Location: $page");
 	exit();
 }
+
+//____________________________________________________________________________
+
+/**
+ *  si aucune session n'est ouverte, on redirige vers la page de connexion 
+ *
+ */
+function bp_estConnecter(){
+if (!isset($_SESSION['utiID'])){
+    header("Location: ./identification.php");
+	exit();
+}
+}
+
+
+
+
+
+
 ?>
