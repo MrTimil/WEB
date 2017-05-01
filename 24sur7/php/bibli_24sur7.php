@@ -54,6 +54,7 @@ function fd_form_ligne($gauche, $droite) {
 	return "<tr id=\"ligneForm\"><td id='colGauche'>{$gauche}</td><td>{$droite}</td></tr>";
 }
 
+
 //_______________________________________________________________
 /**
 * Génére le code d'une zone input de formulaire (type text, password ou button)
@@ -65,12 +66,15 @@ function fd_form_ligne($gauche, $droite) {
 *
 * @return string	Le code HTML de la zone de formulaire
 */
-function fd_form_input($type, $name, $value, $size=0) {
+function fd_form_input($type, $name, $value, $size=0, $selecteur='') {
    $value = htmlentities($value, ENT_QUOTES, 'UTF-8');
    $size = ($size == 0) ? '' : "size='{$size}'";
-        return "<input type='{$type}' id='{$name}' name='{$name}' $size value=\"{$value}\">";
+    
+    if($selecteur == ''){
+      return "<input type='{$type}' name='{$name}' $size value='{$value}'>";
+    }
+    return "<input type='{$type}' id='{$selecteur}' name='{$name}' $size value='{$value}'>";
 }
-
 //_______________________________________________________________
 /**
 * Génére le code pour un ensemble de trois zones de sélection
@@ -283,7 +287,7 @@ function fd_html_head($titre, $css = '../css/style.css') {
 		'<html lang="fr">',
 			'<head>',
 				'<meta charset="UTF-8">',
-				'<title>', $titre, '</title>',
+				'<title>',$titre, '</title>',
 				$css,
 				'<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">',
 			'</head>',
@@ -546,19 +550,349 @@ function fd_redirige($page) {
 //____________________________________________________________________________
 
 /**
- *  si aucune session n'est ouverte, on redirige vers la page de connexion 
+ *  Si aucune session n'est ouverte, on redirige vers la page de connexion 
  *
  */
 function bp_estConnecter(){
-if (!isset($_SESSION['utiID'])){
-    header("Location: ./identification.php");
-	exit();
+    if (!isset($_SESSION['utiID'])){
+        header("Location: ./identification.php");
+        exit();
+    }
 }
+
+
+//-----------------------------------------------------
+// PAGE PARAMETRES
+//-----------------------------------------------------
+
+
+//____________________________________________________________________________
+
+/**
+ * Permet de supprimer une catégorie dans la base de données 
+ * Supprime aussi les rendez vous qui ont cette catégorie
+ * 
+ * @param integer	$id		Id de l'utilisateur identifié
+ *
+ * @param integer	$catID	Id de la catégorie qu'on veut supprimer
+ */
+
+function deleteCat($id,$catID){
+    //suppression des rendez vous possédant la catégorie choisie
+    
+    $SdeleteRDV =  "DELETE
+                    FROM rendezvous
+                    WHERE rdvIDCategorie = '$catID'
+                    AND rdvIDUtilisateur = '$id'";
+    
+    $RdeleteRDV = mysqli_query($GLOBALS['bd'], $SdeleteRDV) or fd_bd_erreur($SdeleteRDV);
+    
+    
+    // suppression de la catégorie voulue
+    
+    $SdeleteCat = "DELETE 
+            FROM categorie 
+            WHERE CatID = '$catID'
+            AND catIDUtilisateur = '$id'
+            ";
+     $RdeleteCat = mysqli_query($GLOBALS['bd'], $SdeleteCat) or fd_bd_erreur($SdeleteCat);  
+    
+   fd_redirige("parametres.php");
+}
+
+//____________________________________________________________________________
+
+/**
+ * Permet de cocher les cases des jours selon le chiffre qu'on lui envoie
+ * 
+ * @param integer   $chiffre    valeur de la checkbox
+ *
+ * @return string   checked ou chaine vide
+ */
+
+function cocheCase($chiffre){
+    if ($chiffre == 1){
+        return "checked";
+    }else{
+        return ""; 
+    }
+}
+
+
+//____________________________________________________________________________
+
+/**
+ *  Permet de mettre a jour les valeur la partie 2 dans la base
+ *
+ * @param integer	$id		Id de l'utilisateur identifié
+ *
+ * @param string   $chaineBinaire   valeur des checkbox en binaire
+ *
+ * @param integer	$utiHeureMin  Heure minimal voulu
+ *
+ * @param integer	$utiHeureMax  Heure maximal voulu
+ */
+
+function updateCase($id,$chaineBinaire,$utiHeureMin,$utiHeureMax){
+    
+    $SModifJours = "UPDATE `utilisateur` 
+                    SET 
+                    utiJours = '$chaineBinaire',
+                    utiHeureMax = '$utiHeureMax',
+                    utiHeureMin = '$utiHeureMin'
+                    WHERE utiID = '$id'";
+    
+    $RModifJours = mysqli_query($GLOBALS['bd'], $SModifJours) or fd_bd_erreur($SModifJours);
+    
+    fd_redirige("parametres.php");
+}
+
+//____________________________________________________________________________
+
+/**
+ * Permet de gérer l'affichage des horaires minimale 
+ *
+ * @param integer	$id		Id de l'utilisateur identifié
+ *
+ * @param integer	$utiHeureMin  Heure minimal voulu
+ *
+ * @return  string  $ret    Code permettabt d'afficher la liste des heures min
+ */
+
+function afficheHoraireMin($id,$utiHeureMin){
+    $ret="<SELECT name='hMin'>";
+    for ($i = 1 ; $i < 23 ; $i++){
+        if($i == $utiHeureMin){
+            $ret=$ret.'<OPTION selected >'.$i.':00';
+        }else{
+            $ret=$ret.'<OPTION>'.$i.':00';
+        }
+    }
+    $ret=$ret.'</SELECT>';
+    return $ret;
+}
+
+
+//____________________________________________________________________________
+
+/**
+ *  permet de gérer l'affichage des horaires max 
+ *
+ * @param integer	$id		Id de l'utilisateur identifié
+ *
+ * @param integer	$utiHeureMax  Heure maximal voulu
+ *
+ * @return  string  $ret    Code permettabt d'afficher la liste des heures max
+ */
+ */
+
+function afficheHoraireMax($id,$utiHeureMax){
+    $ret="<SELECT name='hMax'>";
+    for ($i = 1 ; $i < 23 ; $i++){
+        if($i == $utiHeureMax){
+            $ret=$ret.'<OPTION selected >'.$i.':00';
+        }else{
+            $ret=$ret.'<OPTION>'.$i.':00';
+        }
+    }
+    $ret=$ret.'</SELECT>';
+    return $ret;
 }
 
 
 
+//____________________________________________________________________________
+
+/**
+ * Permet de modifier une catégorie dans la base de données 
+ * 
+ * @param integer	$id		Id de l'utilisateur identifié
+ *
+ * @param integer	$catID  Id de la catégorie qu'on modifie
+ *
+ * @param string   $catNom Nom de la catégorie voulue
+ * 
+ * @param integer   $catCouleurFond couleur de fond voulue
+ * 
+ * @param integer   $catCouleurBordure couleur de bordure voulue
+ *
+ * @param integer $catPublic    valeur de la checkbox voulu
+ *
+ */
+function modifCat($id,$catID,$catNom,$catCouleurFond,$catCouleurBordure,$catPublic){
+    
+    // vérification des champs 
+    // on vérifie que le nom n'est pas vide et que les champs pour les couleurs correspondent bien a des couleurs 
+    if($catNom=='' || strlen($catCouleurFond) != 6 || strlen($catCouleurBordure) != 6 || $catPublic > 1 || $catPublic < 0 ){
+        echo 'Les champs renseigné ne sont pas valide, veuillez recommencer la saisie';
+    }else{
+        // on effectue la modification dans la base
+        $Smodif=" 
+                UPDATE categorie
+                SET catNom = '$catNom',
+                    catCouleurFond = '$catCouleurFond',
+                    catCouleurBordure = '$catCouleurBordure',
+                    catIDUtilisateur = '$id', 
+                    catPublic= '$catPublic'
+                WHERE  catID = '$catID'";   
+
+        $Rmodif = mysqli_query($GLOBALS['bd'], $Smodif) or fd_bd_erreur($Smodif);
+        
+        fd_redirige("parametres.php");
+    }   
+}
+
+//____________________________________________________________________________
+
+/**
+ *  Permet d'ajouter une catégorie dans la base de données 
+ * 
+ * @param integer  $id		    Id de l'utilisateur identifié
+ *
+ * @param string   $catNom      Nom de la catégorie voulue
+ * 
+ * @param integer  $catCouleurFond couleur de fond voulue
+ * 
+ * @param integer  $catCouleurBordure couleur de bordure voulue
+ *
+ * @param integer $catPublic    valeur de la checkbox voulu
+ *
+ */
+
+function ajoutCat($id,$catNom,$catCouleurFond,$catCouleurBordure,$catPublic){
+    
+    // vérification des champs 
+        // on vérifie que le nom n'est pas vide et que les champs pour les couleurs correspondent bien a des couleurs 
+    if($catNom=='' || strlen($catCouleurFond) != 6 || strlen($catCouleurBordure) != 6 || $catPublic > 1 || $catPublic < 0 ){
+        echo '<div id="bcContenuErreur"> 
+        <p>Les champs renseigné ne sont pas valide, ajout de catégorie annuler, veuillez recommencer la saisie</p></div>';
+    }else{
+       if($catPublic != 1){ // si la checkbox n'est pas coché, on met $catPublic a 0 pour l'envoyer a la base
+           $catPublic = 0;            
+       }
+        $Sajout = " 
+            INSERT INTO categorie SET
+                catNom = '$catNom',
+                catCouleurFond = '$catCouleurFond',
+                catCouleurBordure = '$catCouleurBordure',
+                catIDUtilisateur = '$id',
+                catPublic = '$catPublic'";
+     
+        $Rajout = mysqli_query($GLOBALS['bd'], $Sajout) or fd_bd_erreur($Sajout);
+        
+        fd_redirige("parametres.php");
+    }
+}
+
+//-----------------------------------------------------
+// PAGE RECHERCHE
+//-----------------------------------------------------
 
 
+//____________________________________________________________________________
+
+/**
+ *  Affiche si l'utilisateur $utiID suit l'utilisateur courant (d'ID $id)
+ *
+ * @param integer  $id  Id de l'utilisateur identifié 
+ *
+ * @param integer $utiID Id de l'utilisateur dont on veut savoir si il nous suit ou non
+ *
+ */
+
+function ilTeSuit($id,$utiID){
+    $SteSuit = "SELECT * 
+                FROM suivi
+                WHERE suiIDSuiveur = $utiID
+                AND suiIDSuivi = $id";
+    $RteSuit = mysqli_query($GLOBALS['bd'], $SteSuit) or fd_bd_erreur($SteSuit);
+    
+    $DteSuit = mysqli_fetch_assoc($RteSuit);
+    
+    if($DteSuit){ // si on a un résultat non nulle, alors l'utilisateur qu'on affiche suit l'utilisateur courant
+        echo "[Abonné à votre agenda]";
+    }else{
+        echo "";
+    }
+}
+
+//____________________________________________________________________________
+
+/**
+ *  Permet d'afficher les utilisateur selon le motif passé en parametre
+ *
+ * @param string $motif informations saisie par l'utilisateur afin d'afficher les résulats possédant ce motif dans leur nom / mail 
+ */
+
+function afficheRes($motif){
+    // on récupère les informations saisies, et on les envoie a la fonction recherche qui interroge la base
+   
+    $_SESSION['motif']=$motif;
+    $id = $_SESSION['utiID'];
+    
+    $Srecherche = " 
+            SELECT *
+            FROM utilisateur
+            WHERE utiNom LIKE '%$motif%'";
+     
+    $Rrecherche = mysqli_query($GLOBALS['bd'], $Srecherche) or fd_bd_erreur($Srecherche);
+        
+    $isEmpty = TRUE;
+    
+    $Ssuivi = "SELECT * FROM suivi";
+
+    $Rsuivi = mysqli_query($GLOBALS['bd'], $Ssuivi) or fd_bd_erreur($Ssuivi);
+    
+    
+    echo '<table id="resRecherche">';
+    
+    while($Drecherche= mysqli_fetch_assoc($Rrecherche)){
+        
+        $isEmpty=false;
+        echo '<tr>
+        <td>'.htmlentities($Drecherche['utiNom']).'</td>
+        <td>'.htmlentities($Drecherche['utiMail']).'</td>';
+            
+        echo '<td>';
+        if($Drecherche['utiID']==$id){ // cas ou on affiche la ligne de l'utilisateur courant 
+        }else{
+            // les autres utilisateurs 
+            ilTeSuit($id,$Drecherche['utiID']);
+            echo'</td>
+                 <td>';
+            $utiID = $Drecherche['utiID'];
+
+            $SleSuit = "SELECT * 
+                        FROM suivi
+                        WHERE suiIDSuiveur = '$id'
+                        AND suiIDSuivi = '$utiID'";
+            $RleSuit = mysqli_query($GLOBALS['bd'], $SleSuit) or fd_bd_erreur($SleSuit);
+
+            $DleSuit = mysqli_fetch_assoc($RleSuit);
+
+            if($DleSuit){
+                echo '<form method="POST" action="recherche.php">',
+                
+                        // permet de passer le numéro d'utilisateur qu'on affiche et donc quand on clic sur un bouton, de savoir a qui ont veux se desabo
+                        '<INPUT type="hidden" name="IDUtilisateurDesabo" value='.$Drecherche['utiID'].'>',
+                        '<INPUT type="submit" id="btnNormal" name="btnDesabo" value="Désabonner">'
+                     '</form>',
+                     '</td>';
+            }else{
+                 echo '<form method="POST" action="recherche.php">',
+                        '<INPUT type="hidden" name="IDUtilisateurAbo" value='.$Drecherche['utiID'].'>',  // permet de passer le numéro d'utilisateur qu'on affiche et donc quand on clic sur un bouton, de savoir a qui ont veux s'abo
+                        '<INPUT type="submit" id="btnNormal" name="btnAbo" value="S\'abonner">',
+                       '</form>',
+                      '</td>';
+            }
+        }
+        echo '</tr>';
+    }
+    
+    if($isEmpty){
+        echo "<h4>Pas de résultats.</h4>"; 
+    }
+    echo '</table></form>';
+}
 
 ?>

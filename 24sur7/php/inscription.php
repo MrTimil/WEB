@@ -69,9 +69,6 @@ echo '<form method="POST" action="inscription.php">',
          ),
 		'</table></form>';
 
-
-ob_end_flush();
-
 echo '<p>Déja inscrit ? <a href="./identification.php">Identifiez-vous !</a>';
 echo '<p>Vous hésitez à vous inscrire ? Laissez-vous séduire par <a href="./presentation.html">une présentation !</a> des possibilités de 24sur7</p></div>';
 

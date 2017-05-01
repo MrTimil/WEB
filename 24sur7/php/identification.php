@@ -1,12 +1,8 @@
 <?php
-
-
 // Bufferisation des sorties
 ob_start();
-
 // Inclusion de la bibliothéque
 include('bibli_24sur7.php');
-
 //-----------------------------------------------------
 // Détermination de la phase de traitement :
 // 1er affichage ou soumission du formulaire
@@ -26,21 +22,14 @@ if (! isset($_POST['btnValider'])) {
     $nbErr = count($erreurs);
 }
 
-if (isset($GLOBALS['bd'])){
-    // Déconnexion de la base de données
-    mysqli_close($GLOBALS['bd']);
-}
-
-
 //-----------------------------------------------------
 // Affichage de la page
 //-----------------------------------------------------
-fd_html_head('24sur7 | Inscription');
-fd_html_bandeau('0');
 
+fd_html_head('24sur7 | Identification');
+fd_html_bandeau('0');
 echo '<div id="bcContenu">
         <p>Pour vous connecter, veuillez vous identifier.</p>';
-
 // Si il y a des erreurs on les affiche
 if ($nbErr > 0) {
 	echo '<strong>Les erreurs suivantes ont été détectées</strong>';
@@ -57,21 +46,14 @@ echo '<form method="POST" action="identification.php">',
 		fd_form_ligne('Mot de passe', 
             fd_form_input(APP_Z_PASS,'txtPasse', '', 40)),
          fd_form_ligne( 
-             fd_form_input(APP_Z_SUBMIT,'btnValider', 'S\'identifier'),
-             fd_form_input(APP_Z_RESET,'btnReset','Annuler')
+             fd_form_input(APP_Z_SUBMIT,'btnValider', 'S\'identifier','0','btnNormal'),
+             fd_form_input(APP_Z_RESET,'btnReset','Annuler','0','btnNormal')
          ),
 		'</table></form>';
-
-
-
-
-echo '<p>Pas encore de compte ? <a href="./inscription.php">Inscrivez-vous</a> sans plus tarder !';
-echo '<p>Vous hésitez à vous inscrire ? Laissez-vous séduire par <a href="./presentation.html">une présentation </a> des possibilités de 24sur7</p></div>';
-
+echo '<p>Pas encore de compte ? <a href="./inscription.php">Inscrivez-vous</a> sans plus tarder !',
+     '<p>Vous hésitez à vous inscrire ? Laissez-vous séduire par <a href="./presentation.html">une présentation </a> des possibilités de 24sur7</p></div>';
 fd_html_pied();
-
 ob_end_flush();
-
 
 //_______________________________________________________________
 //
@@ -96,7 +78,6 @@ function fdl_verif_utilisateur() {
 	// Vérification des zones
 	//-----------------------------------------------------
 	$erreurs = array();
-
 	// Vérification du mail
 	$txtMail = trim($_POST['txtMail']);
 	if ($txtMail == '') {
@@ -109,12 +90,12 @@ function fdl_verif_utilisateur() {
     
     // Vérification que le mail n'existe pas dans la BD
     fd_bd_connexion();
-
+    
+    
     $ret = mysqli_set_charset($GLOBALS['bd'], "utf8");
     if ($ret == FALSE){
         fd_bd_erreurExit('Erreur lors du chargement du jeu de caractères utf8');
     }
-
     // Vérification du mot de passe
     $txtPasse = trim($_POST['txtPasse']);
     $long = mb_strlen($txtPasse, 'UTF-8');
@@ -123,50 +104,52 @@ function fdl_verif_utilisateur() {
     {
         $erreurs[] = 'Le mot de passe doit avoir de 4 à 20 caractères';
     }
+    
     $txtPasse= mysqli_real_escape_string($GLOBALS['bd'], $txtPasse);
-    $mail = mysqli_real_escape_string($GLOBALS['bd'], $txtMail);
     // On passe le mot de passe saisie en md5 
     $txtPasse = md5($txtPasse);
+    $mail = mysqli_real_escape_string($GLOBALS['bd'], $txtMail);
+  
+
     $S = "SELECT	*
             FROM	utilisateur
             WHERE	utiMail = '$mail'
             AND     utiPasse = '$txtPasse'";
-
+    
     $R = mysqli_query($GLOBALS['bd'], $S) or fd_bd_erreur($S);
     
-    if($D = mysqli_fetch_assoc($R)){
-        $CoupleMailMDPDansLaBase=1;
-    }
+    $MailMdpBase=0;
     
-	
+    if($D = mysqli_fetch_assoc($R)) {
+        $MailMdpBase=1;
+    }else{
+         $erreurs[] = 'Les identifiants ne sont pas valide, veuillez recommencer';
+    }
+   
 	// Si il y a des erreurs, la fonction renvoie le tableau d'erreurs
 	if (count($erreurs) > 0) {
 		return $erreurs;		// RETURN : des erreurs ont été détectées
 	}
-
 	//-----------------------------------------------------
 	// Ouverture de la session et redirection vers la page agenda.php
 	//-----------------------------------------------------
 	print_r($D);
 	// Déconnexion de la base de données
     mysqli_close($GLOBALS['bd']);
-	if($CoupleMailMDPDansLaBase==1){
+	if($MailMdpBase==1){
         session_start();
-	    $_SESSION['utiID'] = $D['utiID'];
+	   $_SESSION['utiID'] = $D['utiID'];
         $_SESSION['utiNom'] = $D['utiNom'];
         $_SESSION['utiMail']=$D['utiMail'];
+        $_SESSION['motif']="";
+        
 	   // Libère la mémoire associée au résultat $R
         mysqli_free_result($R);
         //header ('location: agenda.php');
-        header ('location: parametres.php');
+        header ('location: ./agenda.php');
     }
     // Libère la mémoire associée au résultat $R
     mysqli_free_result($R);
-	exit();			// EXIT : le script est terminé
 }
-
-
-
    
-
 ?>
