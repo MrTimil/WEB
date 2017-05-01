@@ -433,9 +433,7 @@ strong {
 	color: #FFF;
 }
 
-/* ---------------------------------------------------------------
-	    MODIFS
---------------------------------------------------------------- */
+
 
 /* ---------------------------------------------------------------
 PAGE INSCRIPTION 
@@ -450,12 +448,13 @@ PAGE INSCRIPTION
 form table{
     margin: 0 auto;
 }
+
 #colGauche{
     text-align: right;
     padding-right: 10px;
 }
 
-input[type=submit], input[type=reset] {
+#btnNormal {
 	-moz-box-shadow:inset 0px 1px 0px 0px #e3b47b;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #e3b47b;
 	box-shadow:inset 0px 1px 0px 0px #e3b47b;
@@ -482,10 +481,11 @@ input[type=submit], input[type=reset] {
 	text-shadow:0px 1px 0px #e39c2b;
     width:130px;
     height: 25px;
+    vertical-align: middle;
    padding-bottom: 20px;
 }
 
-input[type=submit]:hover, input[type=reset]:hover {
+#btnNormal:hover{
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ff8f05), color-stop(1, #faa844));
 	background:-moz-linear-gradient(top, #ff8f05 5%, #faa844 100%);
 	background:-webkit-linear-gradient(top, #ff8f05 5%, #faa844 100%);
@@ -495,7 +495,74 @@ input[type=submit]:hover, input[type=reset]:hover {
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff8f05', endColorstr='#faa844',GradientType=0);
 	background-color:#ff8f05;
 }
-input[type=submit]:active, input[type=reset]:active {
+#btnNormal:active {
 	position:relative;
 	top:1px;
+}
+
+#btnImgSave{
+    background-image:url(../images/sauver.png);
+    width:27px;
+    height:28px;
+    background-repeat: no-repeat;
+    vertical-align:bottom;
+    margin-left: 10px;
+}
+#btnImgStop{
+    background-image:url(../images/supprimer.png);
+    width:27px;
+    height: 28px;
+    background-repeat: no-repeat;
+    vertical-align:bottom;
+    margin-left: 10px;
+}
+
+input{
+    margin-bottom: 12px;
+}
+
+.public{
+    margin: 20px;
+}
+/* ---------------------------------------------------------------
+PAGE PARAMETRES 
+--------------------------------------------------------------- */
+
+#AjoutCat, h3{
+    padding-left: 117px;
+}
+
+#bcContenuErreur{
+    position: relative;
+	background: url(../images/contenu.png) repeat-y;
+	min-height: 30px;
+	padding: 0px 10px;
+}
+#bcContenuErreur p{
+    border: 3px solid #ff8f05;
+    width:400px;
+    margin: 0 auto;
+    text-align: center;
+}
+/* ---------------------------------------------------------------
+PAGE RECHERCHE
+--------------------------------------------------------------- */
+#resRecherche tr:nth-child(odd){ 
+   background-color: #9AC5E7;
+    
+    
+}
+#resRecherche tr:nth-child(even){ 
+   background-color: #E5ECF6;
+}
+
+#resRecherche tr td{
+    height:30px;
+    max-width: 520px;
+    vertical-align:middle;
+    padding-left: 5px;
+}
+
+h4{
+    text-align: center;
 }
